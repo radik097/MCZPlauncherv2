@@ -7,6 +7,8 @@ mod config;
 mod auth;
 mod server;
 mod logging;
+mod modrinth;
+mod mod_downloader;
 
 use iced::{
     executor, window, Application, Command, Element, Settings, Theme,
@@ -15,6 +17,13 @@ use iced::widget::text_input;
 use std::path::PathBuf;
 
 pub fn main() -> iced::Result {
+    // Initialize logging to files
+    if let Err(e) = logging::init_logging() {
+        eprintln!("Failed to initialize logging: {}", e);
+    }
+
+    tracing::info!("Starting MCZ Launcher v0.1.0");
+
     MCZLauncher::run(Settings {
         window: window::Settings {
             size: iced::Size {
@@ -138,6 +147,7 @@ impl Application for MCZLauncher {
                 self.reg_password_confirm = password;
                 Command::none()
             }
+            Message::LoginPressed => {
                 if !self.login_username.is_empty() && !self.login_password.is_empty() {
                     self.status_message = "Logging in...".to_string();
                     // In production, this would call async auth

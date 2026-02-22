@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Modpack {
@@ -121,5 +121,110 @@ impl ModpackManager {
             .unwrap_or(&self.config_dir)
             .join("modpacks")
             .join(modpack_name)
+    }
+
+    /// Load a Modrinth modpack from a .mrpack file
+    pub async fn load_modrinth_modpack(
+        &self,
+        mrpack_path: &Path,
+    ) -> Result<(crate::modrinth::ModrinthModpack, Modpack), Box<dyn std::error::Error>> {
+        // Parse the .mrpack file
+        let modrinth_pack = crate::modrinth::parse_mrpack(mrpack_path)?;
+        
+        // Convert to our Modpack format
+        let mod_entries = crate::modrinth::get_client_mods(&modrinth_pack)
+            .into_iter()
+            .map(|(path, url, hash)| ModEntry {
+                name: path.clone(),
+                download_url: url,
+                version: modrinth_pack.index.version_id.clone(),
+                required: true,
+                filename: std::path::Path::new(&path)
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string(),
+            })
+            .collect();
+
+        let modpack = Modpack {
+            name: modrinth_pack.index.name.clone(),
+            version: modrinth_pack.index.version_id.clone(),
+            minecraft_version: modrinth_pack.index.game.clone(),
+            neoforge_version: "auto".to_string(),
+            description: modrinth_pack.index.summary.clone().unwrap_or_default(),
+            author: "Modrinth".to_string(),
+            mods: mod_entries,
+            settings: ModpackSettings::default(),
+        };
+
+        tracing::info!(
+            "Loaded Modrinth modpack: {} v{}",
+            modpack.name,
+            modpack.version
+        );
+
+        Ok((modrinth_pack, modpack))
+    }
+
+    /// Extract and install a Modrinth modpack to the game directory
+    pub async fn install_modrinth_modpack(
+        &self,
+        modrinth_pack: &crate::modrinth::ModrinthModpack,
+        target_dir: &Path,
+        client_side: bool,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // Extract override files
+        crate::modrinth::extract_overrides(modrinth_pack, target_dir, client_side)?;
+
+        // Download mods with verification
+        let mods = if client_side {
+            crate::modrinth::get_client_mods(modrinth_pack)
+        } else {
+            crate::modrinth::get_server_mods(modrinth_pack)
+        };
+
+        for (path, url, hash) in mods {
+            let full_path = target_dir.join(&path);
+            std::fs::create_dir_all(full_path.parent().unwrap_or(&target_dir))?;
+
+            // Download and verify
+            crate::mod_downloader::download_and_verify_mod(&url, &full_path, &hash, 3)
+                .await?;
+        }
+
+        tracing::info!(
+            "Installed Modrinth modpack to {:?}",
+            target_dir
+        );
+
+        Ok(())
+    }
+
+    /// List all available Modrinth modpacks in the modpacks directory
+    pub async fn list_modrinth_modpacks(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let modpacks_dir = self.config_dir
+            .parent()
+            .unwrap_or(&self.config_dir)
+            .join("modrinth_modpacks");
+
+        if !modpacks_dir.exists() {
+            tokio::fs::create_dir_all(&modpacks_dir).await?;
+            return Ok(Vec::new());
+        }
+
+        let mut modpacks = Vec::new();
+        let mut entries = tokio::fs::read_dir(&modpacks_dir).await?;
+
+        while let Some(entry) = entries.next_entry().await? {
+            let path = entry.path();
+            if path.extension().and_then(|s| s.to_str()) == Some("mrpack") {
+                if let Some(name) = path.file_stem() {
+                    modpacks.push(name.to_string_lossy().to_string());
+                }
+            }
+        }
+
+        Ok(modpacks)
     }
 }
