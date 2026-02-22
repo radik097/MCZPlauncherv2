@@ -17,7 +17,7 @@ pub struct LauncherConfig {
 
 impl Default for LauncherConfig {
     fn default() -> Self {
-        let config_dir = dirs::config_dir()
+        let _config_dir = dirs::config_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join("MCZPlauncher");
 

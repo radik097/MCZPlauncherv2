@@ -8,15 +8,18 @@ mod auth;
 mod server;
 
 use iced::{
-    alignment, executor, window, Application, Command, Element, Length, Row, Column,
-    Settings, Theme, Padding, text_input, TextInput, Password,
+    executor, window, Application, Command, Element, Settings, Theme,
 };
+use iced::widget::text_input;
 use std::path::PathBuf;
 
 pub fn main() -> iced::Result {
     MCZLauncher::run(Settings {
         window: window::Settings {
-            size: (1000, 700),
+            size: iced::Size {
+                width: 1000.0,
+                height: 700.0,
+            },
             ..Default::default()
         },
         ..Default::default()
@@ -30,8 +33,10 @@ pub struct MCZLauncher {
     // Auth state
     login_username: String,
     login_password: String,
+    reg_password_confirm: String,
     username_input_id: text_input::Id,
     password_input_id: text_input::Id,
+    password_confirm_id: text_input::Id,
     
     // Main launcher state
     selected_modpack: Option<String>,
@@ -66,6 +71,7 @@ pub enum Message {
     // Login messages
     UsernameChanged(String),
     PasswordChanged(String),
+    PasswordConfirmChanged(String),
     LoginPressed,
     RegisterPressed,
     SwitchToRegister,
@@ -91,8 +97,9 @@ impl Application for MCZLauncher {
     type Executor = executor::Default;
     type Message = Message;
     type Theme = Theme;
+    type Flags = ();
 
-    fn new() -> (Self, Command<Message>) {
+    fn new(_flags: Self::Flags) -> (Self, Command<Message>) {
         let game_dir = dirs::data_local_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join("MCZPlauncher");
@@ -101,8 +108,10 @@ impl Application for MCZLauncher {
             app_state: AppState::Login,
             login_username: String::new(),
             login_password: String::new(),
+            reg_password_confirm: String::new(),
             username_input_id: text_input::Id::unique(),
             password_input_id: text_input::Id::unique(),
+            password_confirm_id: text_input::Id::unique(),
             selected_modpack: None,
             progress: 0.0,
             status_message: "Ready to launch".to_string(),
@@ -124,11 +133,10 @@ impl Application for MCZLauncher {
                 self.login_username = username;
                 Command::none()
             }
-            Message::PasswordChanged(password) => {
-                self.login_password = password;
+            Message::PasswordConfirmChanged(password) => {
+                self.reg_password_confirm = password;
                 Command::none()
             }
-            Message::LoginPressed => {
                 if !self.login_username.is_empty() && !self.login_password.is_empty() {
                     self.status_message = "Logging in...".to_string();
                     // In production, this would call async auth
@@ -142,14 +150,25 @@ impl Application for MCZLauncher {
                 }
             }
             Message::RegisterPressed => {
-                if !self.login_username.is_empty() && !self.login_password.is_empty() {
+                if self.login_username.is_empty() {
+                    self.status_message = "Please enter a username".to_string();
+                    Command::none()
+                } else if self.login_password.is_empty() {
+                    self.status_message = "Please enter a password".to_string();
+                    Command::none()
+                } else if self.reg_password_confirm.is_empty() {
+                    self.status_message = "Please confirm your password".to_string();
+                    Command::none()
+                } else if self.login_password != self.reg_password_confirm {
+                    self.status_message = "Passwords do not match".to_string();
+                    self.login_password.clear();
+                    self.reg_password_confirm.clear();
+                    Command::none()
+                } else {
                     self.status_message = "Creating account...".to_string();
                     self.app_state = AppState::MainLauncher;
                     self.current_user = Some(self.login_username.clone());
                     self.session_token = Some("sample_token_123".to_string());
-                    Command::none()
-                } else {
-                    self.status_message = "Please enter username and password".to_string();
                     Command::none()
                 }
             }
@@ -157,6 +176,7 @@ impl Application for MCZLauncher {
                 self.app_state = AppState::Register;
                 self.login_username.clear();
                 self.login_password.clear();
+                self.reg_password_confirm.clear();
                 self.status_message = String::new();
                 Command::none()
             }
@@ -164,6 +184,7 @@ impl Application for MCZLauncher {
                 self.app_state = AppState::Login;
                 self.login_username.clear();
                 self.login_password.clear();
+                self.reg_password_confirm.clear();
                 self.status_message = String::new();
                 Command::none()
             }
@@ -184,7 +205,7 @@ impl Application for MCZLauncher {
                 Command::none()
             }
             Message::LaunchGame => {
-                if let Some(modpack) = &self.selected_modpack {
+                if let Some(_modpack) = &self.selected_modpack {
                     self.app_state = AppState::Launching;
                     self.status_message = "Downloading Minecraft...".to_string();
                     Command::none()

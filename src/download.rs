@@ -25,7 +25,7 @@ impl DownloadManager {
         tokio::fs::create_dir_all(&install_dir).await?;
 
         // Simulate Minecraft launcher manifest request
-        let manifest_url = format!(
+        let _manifest_url = format!(
             "https://launcher.mojang.com/v1/objects/manifest"
         );
 

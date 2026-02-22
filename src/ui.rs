@@ -1,4 +1,5 @@
-use iced::{Element, Container, Column, Row, Text, Button, Length, Padding, alignment};
+use iced::Element;
+use iced::widget::{Container, Column, Text, ProgressBar};
 use crate::Message;
 
 pub struct ModpackCard {
@@ -18,7 +19,7 @@ impl ModpackCard {
 
     pub fn view(&self) -> Element<Message> {
         let content = Column::new()
-            .padding(10)
+            .padding(10.0)
             .spacing(5)
             .push(
                 Text::new(&self.name)
@@ -34,7 +35,7 @@ impl ModpackCard {
             );
 
         Container::new(content)
-            .padding(10)
+            .padding(10.0)
             .into()
     }
 }
@@ -53,12 +54,12 @@ pub fn create_status_bar(status: &str, progress: f32) -> Element<Message> {
                 .size(12)
         )
         .push(
-            iced::ProgressBar::new(0.0..=1.0, progress)
-                .height(Length::Units(4))
+            ProgressBar::new(0.0..=1.0, progress)
+                .height(4.0)
         );
 
     Container::new(content)
-        .padding(10)
-        .width(Length::Fill)
+        .padding(10.0)
+        .width(iced::Length::Fill)
         .into()
 }

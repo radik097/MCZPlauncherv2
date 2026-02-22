@@ -104,7 +104,7 @@ impl ServerConnectionManager {
         &self,
         server: &ServerConfig,
     ) -> Result<ServerStatus, Box<dyn std::error::Error>> {
-        let client = tokio::net::TcpStream::connect(format!("{}:{}", server.address, server.port))
+        let _client = tokio::net::TcpStream::connect(format!("{}:{}", server.address, server.port))
             .await?;
 
         // Simplified status check - in production would use Minecraft server list ping protocol
@@ -163,8 +163,7 @@ impl ServerConnectionManager {
              difficulty=2\n\
              max-players=20\n\
              view-distance=10\n\
-             simulation-distance=10\n\
-             server-port={}\n",
+             simulation-distance=10\n",
             server.name, server.port, server.port
         );
 

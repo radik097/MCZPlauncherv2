@@ -11,7 +11,7 @@ iced = { version = "0.12", features = ["debug"] }
 tokio = { version = "1.35", features = ["full"] }
 
 # HTTP client for downloads
-reqwest = { version = "0.11", features = ["stream"] }
+reqwest = { version = "0.11", features = ["stream", "json"] }
 
 # JSON serialization
 serde = { version = "1.0", features = ["derive"] }

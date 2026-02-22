@@ -57,25 +57,25 @@ impl MinecraftLauncher {
     pub async fn launch_game(
         &self,
         profile: &MinecraftProfile,
-        modpack_name: &str,
+        _modpack_name: &str,
         ram_mb: u32,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let java_path = self.java_path.as_ref()
-            .cloned()
-            .or_else(|_| self.find_java())
-            .await?;
+        let java_path = match self.java_path.as_ref() {
+            Some(path) => path.clone(),
+            None => self.find_java().await?,
+        };
 
-        let mods_dir = self.game_dir.join("mods");
-        let libraries_dir = self.game_dir.join("libraries");
+        let _mods_dir = self.game_dir.join("mods");
+        let _libraries_dir = self.game_dir.join("libraries");
 
         let mut jvm_args = vec![
             format!("-Xms1024M"),
             format!("-Xmx{}M", ram_mb),
-            "-XX:+UseG1GC",
-            "-XX:+ParallelRefProcEnabled",
-            "-XX:MaxGCPauseMillis=200",
-            "-XX:InitiatingHeapOccupancyPercent=35",
-            "-DJ2D.opengl=true",
+            "-XX:+UseG1GC".to_string(),
+            "-XX:+ParallelRefProcEnabled".to_string(),
+            "-XX:MaxGCPauseMillis=200".to_string(),
+            "-XX:InitiatingHeapOccupancyPercent=35".to_string(),
+            "-DJ2D.opengl=true".to_string(),
         ];
 
         // Add custom JVM args
@@ -107,7 +107,7 @@ impl MinecraftLauncher {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
-        let child = cmd.spawn()?;
+        let _child = cmd.spawn()?;
         tracing::info!("Minecraft process started");
 
         Ok(())
@@ -168,7 +168,7 @@ impl MinecraftLauncher {
         Ok(())
     }
 
-    pub async fn cleanup_old_versions(&self, keep_latest: usize) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn cleanup_old_versions(&self, _keep_latest: usize) -> Result<(), Box<dyn std::error::Error>> {
         // Clean up old game versions to save space
         let versions_dir = self.game_dir.join("versions");
         
