@@ -1,0 +1,50 @@
+[package]
+name = "MCZPlauncher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# GUI Framework - Windows 11 style
+iced = { version = "0.12", features = ["debug"] }
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# HTTP client for downloads
+reqwest = { version = "0.11", features = ["stream"] }
+
+# JSON serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Password hashing
+bcrypt = "0.15"
+
+# Archive handling
+zip = "0.6"
+
+# File operations
+tempfile = "3.8"
+walkdir = "2.4"
+dirs = "5.0"
+
+# Version management
+semver = "1.0"
+
+# Logging and CLI
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# HTTP server for game launch
+hyper = { version = "0.14", features = ["full"] }
+
+# System info
+sysinfo = "0.30"
+
+# Async utilities
+futures-util = "0.3"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

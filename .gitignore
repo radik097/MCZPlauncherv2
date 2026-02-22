@@ -1,0 +1,33 @@
+/target
+# Rust build output
+**/*.rs.bk
+Cargo.lock
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Launcher specific
+/build/
+*.exe
+*.pdb
+/dist/
+
+# Config files (user-specific)
+config.json
+user-settings.json
+
+# Logs
+*.log
+
+# Cache
+.cache/
+*.tmp

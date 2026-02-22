@@ -1,0 +1,64 @@
+{
+  "modpacks": [
+    {
+      "name": "Vanilla Plus",
+      "version": "1.0.0",
+      "minecraft_version": "1.20.1",
+      "neoforge_version": "0.0.47",
+      "description": "Enhanced vanilla Minecraft with quality-of-life mods",
+      "author": "MCZ Team",
+      "mods": [
+        {
+          "name": "JourneyMap",
+          "download_url": "https://www.curseforge.com/api/v1/mods/32274/files",
+          "version": "5.9.10",
+          "required": false,
+          "filename": "journeymap-1.20.1-5.9.10.jar"
+        },
+        {
+          "name": "Sodium",
+          "download_url": "https://www.curseforge.com/api/v1/mods/394468/files",
+          "version": "0.5.8",
+          "required": true,
+          "filename": "sodium-fabric-0.5.8-mc1.20.1.jar"
+        }
+      ],
+      "settings": {
+        "ram_min": 2048,
+        "ram_max": 4096,
+        "java_args": "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200",
+        "custom_args": null
+      }
+    },
+    {
+      "name": "Tech Modpack",
+      "version": "2.0.0",
+      "minecraft_version": "1.20.1",
+      "neoforge_version": "0.0.47",
+      "description": "Comprehensive tech and builder modpack",
+      "author": "MCZ Team",
+      "mods": [
+        {
+          "name": "Create",
+          "download_url": "https://www.curseforge.com/api/v1/mods/328085/files",
+          "version": "0.5.1f",
+          "required": true,
+          "filename": "create-1.20.1-0.5.1f.jar"
+        },
+        {
+          "name": "Thermal Foundation",
+          "download_url": "https://www.curseforge.com/api/v1/mods/46173/files",
+          "version": "1.20.1-13.0.26",
+          "required": true,
+          "filename": "thermal-foundation-1.20.1-13.0.26.jar"
+        }
+      ],
+      "settings": {
+        "ram_min": 3072,
+        "ram_max": 6144,
+        "java_args": "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35",
+        "custom_args": null
+      }
+    }
+  ]
+}
