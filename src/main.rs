@@ -6,6 +6,7 @@ mod minecraft;
 mod config;
 mod auth;
 mod server;
+mod logging;
 
 use iced::{
     executor, window, Application, Command, Element, Settings, Theme,

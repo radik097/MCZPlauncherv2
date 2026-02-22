@@ -33,7 +33,11 @@ semver = "1.0"
 
 # Logging and CLI
 tracing = "0.1"
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "fmt"] }
+tracing-appender = "0.2"
+
+# Hash verification for Modrinth
+sha2 = "0.10"
 
 # HTTP server for game launch
 hyper = { version = "0.14", features = ["full"] }
